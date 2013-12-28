@@ -47,15 +47,17 @@ public class CallLogActivity extends Activity implements
 
     private ViewPager mViewPager;
     private ViewPagerAdapter mViewPagerAdapter;
-    private CallLogFragment mAllCallsFragment;
     private CallLogFragment mMissedCallsFragment;
     private CallStatsFragment mStatsFragment;
+    private CallLogFragment mIncomingCallsFragment;
+    private CallLogFragment mOutgoingCallsFragment;
 
-    private static final int TAB_INDEX_ALL = 0;
-    private static final int TAB_INDEX_MISSED = 1;
-    private static final int TAB_INDEX_STATS = 2;
+    private static final int TAB_INDEX_INCOMING = 0;
+    private static final int TAB_INDEX_OUTGOING = 1;
+    private static final int TAB_INDEX_MISSED = 2;
+    private static final int TAB_INDEX_STATS = 3;
 
-    private static final int TAB_INDEX_COUNT = 3;
+    private static final int TAB_INDEX_COUNT = 4;
 
     public class ViewPagerAdapter extends FragmentPagerAdapter {
         public ViewPagerAdapter(FragmentManager fm) {
@@ -65,9 +67,12 @@ public class CallLogActivity extends Activity implements
         @Override
         public Fragment getItem(int position) {
             switch (position) {
-                case TAB_INDEX_ALL:
-                    mAllCallsFragment = new CallLogFragment(CallLogQueryHandler.CALL_TYPE_ALL);
-                    return mAllCallsFragment;
+                case TAB_INDEX_INCOMING:
+                    mIncomingCallsFragment = new CallLogFragment(Calls.INCOMING_TYPE);
+                    return mIncomingCallsFragment;
+                case TAB_INDEX_OUTGOING:
+                    mOutgoingCallsFragment = new CallLogFragment(Calls.OUTGOING_TYPE);
+                    return mOutgoingCallsFragment;
                 case TAB_INDEX_MISSED:
                     mMissedCallsFragment = new CallLogFragment(Calls.MISSED_TYPE);
                     return mMissedCallsFragment;
@@ -130,12 +135,19 @@ public class CallLogActivity extends Activity implements
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
 
-        final Tab allTab = actionBar.newTab();
-        final String allTitle = getString(R.string.call_log_all_title);
-        allTab.setContentDescription(allTitle);
-        allTab.setText(allTitle);
-        allTab.setTabListener(mTabListener);
-        actionBar.addTab(allTab);
+        final Tab incomingTab = actionBar.newTab();
+        final String incomingTitle = getString(R.string.call_log_incoming_title);
+        incomingTab.setContentDescription(incomingTitle);
+        incomingTab.setText(incomingTitle);
+        incomingTab.setTabListener(mTabListener);
+        actionBar.addTab(incomingTab);
+
+        final Tab outgoingTab = actionBar.newTab();
+        final String outgoingTitle = getString(R.string.call_log_outgoing_title);
+        outgoingTab.setContentDescription(outgoingTitle);
+        outgoingTab.setText(outgoingTitle);
+        outgoingTab.setTabListener(mTabListener);
+        actionBar.addTab(outgoingTab);
 
         final Tab missedTab = actionBar.newTab();
         final String missedTitle = getString(R.string.call_log_missed_title);
@@ -155,7 +167,7 @@ public class CallLogActivity extends Activity implements
         mViewPagerAdapter = new ViewPagerAdapter(getFragmentManager());
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.setOnPageChangeListener(mOnPageChangeListener);
-        mViewPager.setOffscreenPageLimit(2);
+        mViewPager.setOffscreenPageLimit(3);
     }
 
     @Override
@@ -168,11 +180,8 @@ public class CallLogActivity extends Activity implements
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         final MenuItem itemDeleteAll = menu.findItem(R.id.delete_all);
-
-        // If onPrepareOptionsMenu is called before fragments loaded. Don't do anything.
-        if (mAllCallsFragment != null && itemDeleteAll != null) {
-            final CallLogAdapter adapter = mAllCallsFragment.getAdapter();
-            itemDeleteAll.setVisible(adapter != null && !adapter.isEmpty());
+        if (itemDeleteAll != null) {
+            itemDeleteAll.setVisible(true);
         }
         return true;
     }
