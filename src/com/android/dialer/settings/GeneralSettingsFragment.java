@@ -22,12 +22,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.Settings;
 
 import android.text.TextUtils;
@@ -60,8 +60,8 @@ public class GeneralSettingsFragment extends PreferenceFragment
     private Context mContext;
 
     private Preference mRingtonePreference;
-    private CheckBoxPreference mVibrateWhenRinging;
-    private CheckBoxPreference mPlayDtmfTone;
+    private SwitchPreference mVibrateWhenRinging;
+    private SwitchPreference mPlayDtmfTone;
     private Preference mRespondViaSms;
     private Preference mSpeedDialSettings;
     private ListPreference mT9SearchInputLocale;
@@ -93,8 +93,8 @@ public class GeneralSettingsFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.general_settings);
 
         mRingtonePreference = findPreference(BUTTON_RINGTONE_KEY);
-        mVibrateWhenRinging = (CheckBoxPreference) findPreference(BUTTON_VIBRATE_ON_RING);
-        mPlayDtmfTone = (CheckBoxPreference) findPreference(BUTTON_PLAY_DTMF_TONE);
+        mVibrateWhenRinging = (SwitchPreference) findPreference(BUTTON_VIBRATE_ON_RING);
+        mPlayDtmfTone = (SwitchPreference) findPreference(BUTTON_PLAY_DTMF_TONE);
         mRespondViaSms = findPreference(BUTTON_RESPOND_VIA_SMS_KEY);
         mSpeedDialSettings = findPreference(BUTTON_SPEED_DIAL_KEY);
         mT9SearchInputLocale = (ListPreference) findPreference(BUTTON_T9_SEARCH_INPUT_LOCALE);
@@ -155,6 +155,9 @@ public class GeneralSettingsFragment extends PreferenceFragment
                     Settings.System.VIBRATE_WHEN_RINGING, doVibrate ? 1 : 0);
         } else if (preference == mT9SearchInputLocale) {
             saveT9SearchInputLocale(preference, (String) objValue);
+        } else if (preference == mPlayDtmfTone) {
+            Settings.System.putInt(mContext.getContentResolver(),
+                    Settings.System.DTMF_TONE_WHEN_DIALING, (Boolean) objValue ? 1 : 0);
         }
         return true;
     }
@@ -164,10 +167,7 @@ public class GeneralSettingsFragment extends PreferenceFragment
      */
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference == mPlayDtmfTone) {
-            Settings.System.putInt(mContext.getContentResolver(),
-                    Settings.System.DTMF_TONE_WHEN_DIALING, mPlayDtmfTone.isChecked() ? 1 : 0);
-        } else if (preference == mRespondViaSms || preference == mSpeedDialSettings) {
+        if (preference == mRespondViaSms || preference == mSpeedDialSettings) {
             // Needs to return false for the intent to launch.
             return false;
         }
