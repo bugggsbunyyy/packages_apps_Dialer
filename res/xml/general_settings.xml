@@ -98,7 +98,7 @@
         android:title="@string/other_settings_title"
         android:persistent="false" >
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="detailed_incall_info"
             android:title="@string/detailed_incall_info_title"
             android:summary="@string/detailed_incall_info_summary" />
